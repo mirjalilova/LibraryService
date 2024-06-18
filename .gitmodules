@@ -1,0 +1,3 @@
+[submodule "LibrarySystemSubmodule"]
+	path = LibrarySystemSubmodule
+	url = git@github.com:mirjalilova/LibrarySystemSubmodule.git
