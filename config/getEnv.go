@@ -17,7 +17,7 @@ type Config struct {
 	DB_PASSWORD string
 	DB_NAME     string
 
-	RESERVATION_PORT string
+	LIBRARY_PORT string
 }
 
 func Load() Config {
@@ -34,7 +34,7 @@ func Load() Config {
 	config.DB_USER = cast.ToString(coalesce("DB_USER", "n10"))
 	config.DB_PASSWORD = cast.ToString(coalesce("DB_PASSWORD", "12345"))
 	config.DB_NAME = cast.ToString(coalesce("DB_NAME", "n10"))
-	config.RESERVATION_PORT = cast.ToString(coalesce("RESERVATION_PORT", ":8080"))
+	config.LIBRARY_PORT = cast.ToString(coalesce("LIBRARY_PORT", ":8080"))
 
 	return config
 }

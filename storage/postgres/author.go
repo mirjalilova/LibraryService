@@ -31,6 +31,9 @@ func (a *AuthorRepo) Create(req *pb.AuthorCreateReq) (*pb.AuthorRes, error) {
 	}
 
 	res, err = a.Get(&pb.GetByIdReq{Id: res.Id})
+	if err != nil {
+		return nil, fmt.Errorf("can't get author: %w", err)
+	}
 
 	return res, err
 }
@@ -50,7 +53,7 @@ func (a *AuthorRepo) Get(req *pb.GetByIdReq) (*pb.AuthorRes, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf("can't get author: %w", err)
-    }
+	}
 
 	return res, nil
 }
@@ -83,58 +86,58 @@ func (a *AuthorRepo) GetAll(req *pb.AuthorGetAllReq) (*pb.AuthorGetAllRes, error
 
 	rows, err := a.db.Query(query, args...)
 
-	if err!= nil {
-        return nil, fmt.Errorf("Error while getting authors: %v", err)
-    }
+	if err != nil {
+		return nil, fmt.Errorf("Error while getting authors: %v", err)
+	}
 
 	defer rows.Close()
 
 	for rows.Next() {
 		author := &pb.AuthorRes{}
 
-        err := rows.Scan(
-            &author.Id,
-            &author.Name,
-            &author.Biography,
-        )
+		err := rows.Scan(
+			&author.Id,
+			&author.Name,
+			&author.Biography,
+		)
 
-        if err!= nil {
-            return nil, fmt.Errorf("Error while scaning authors : %v", err)
-        }
+		if err != nil {
+			return nil, fmt.Errorf("Error while scaning authors : %v", err)
+		}
 
-        res.Authors = append(res.Authors, author)
+		res.Authors = append(res.Authors, author)
 	}
-	
+
 	return res, nil
 }
 
 func (a *AuthorRepo) Update(req *pb.AuthorUpdateReq) (*pb.AuthorRes, error) {
 	res := &pb.AuthorRes{}
 
-    query := `UPDATE authors SET name = $1, biography = $2, updated_at = now() WHERE id = $3 RETURNING id`
+	query := `UPDATE authors SET name = $1, biography = $2, updated_at = now() WHERE id = $3 RETURNING id`
 
-    row := a.db.QueryRow(query, req.UpdateAuthor.Name, req.UpdateAuthor.Biography, req.Id.Id)
+	row := a.db.QueryRow(query, req.UpdateAuthor.Name, req.UpdateAuthor.Biography, req.Id.Id)
 
-    err := row.Scan(&res.Id)
-    if err!= nil {
-        return nil, fmt.Errorf("Error scaning id: %v", err)
-    }
+	err := row.Scan(&res.Id)
+	if err != nil {
+		return nil, fmt.Errorf("Error scaning id: %v", err)
+	}
 
-    res, err = a.Get(&pb.GetByIdReq{Id: res.Id})
+	res, err = a.Get(&pb.GetByIdReq{Id: res.Id})
 
-    return res, err
+	return res, err
 }
 
 func (a *AuthorRepo) Delete(req *pb.GetByIdReq) (*pb.Void, error) {
 	res := &pb.Void{}
 
-    query := `UPDATE authors SET deleted_at = now() WHERE id = $1 RETURNING id`
+	query := `UPDATE authors SET deleted_at = EXTRACT(EPOCH FROM NOW()) WHERE id = $1 RETURNING id`
 
-    _, err := a.db.Exec(query, req.Id)
+	_, err := a.db.Exec(query, req.Id)
 
-    if err != nil {
-        return nil, fmt.Errorf("can't delete author: %v", err)
-    }
+	if err != nil {
+		return nil, fmt.Errorf("can't delete author: %v", err)
+	}
 
-    return res, nil
+	return res, nil
 }

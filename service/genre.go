@@ -47,6 +47,19 @@ func (s *GenreService) GetAll(ctx context.Context, req *pb.GenreGetAllReq) (*pb.
 }
 
 func (s *GenreService) Update(ctx context.Context, req *pb.GenreUpdateReq) (*pb.GenreRes, error) {
+
+    old_genre, err := s.storage.GenreS.Get(&pb.GetByIdReq{
+        Id: req.Id.Id,
+    })
+    if err!= nil {
+        slog.Error("can't get genre: %v", err)
+        return nil, fmt.Errorf("can't get genre: %w", err)
+    }
+
+    if req.UpdateGenre.Name == "string" {
+        req.UpdateGenre.Name = old_genre.Name
+    }
+
 	genre, err := s.storage.GenreS.Update(req)
     if err != nil {
         slog.Error("can't update genre: %v", err)

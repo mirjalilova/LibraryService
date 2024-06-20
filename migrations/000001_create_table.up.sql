@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS authors (
     name VARCHAR(100) NOT NULL,
     biography TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at BIGINT DEFAULT 0
 );
 
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS genres (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at BIGINT DEFAULT 0
 );
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS books (
     genre_id UUID NOT NULL REFERENCES genres(id),
     summary TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at BIGINT DEFAULT 0
 );
 
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS borrowers (
     user_id UUID NOT NULL,
     book_id UUID NOT NULL REFERENCES books(id),
     borrow_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    return_date TIMESTAMPTZ NOT NULL,
+    return_date TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '3 days',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at BIGINT DEFAULT 0
 );

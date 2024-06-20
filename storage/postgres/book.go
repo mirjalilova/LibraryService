@@ -42,7 +42,12 @@ func (b *BookRepo) Create(req *pb.BookCreateReq) (*pb.BookRes, error) {
 		return nil, fmt.Errorf("Error scaning id: %v", err)
 	}
 
+	fmt.Println(id, res)
+
 	res, err = b.Get(&pb.GetByIdReq{Id: id})
+	if err!= nil {
+        return nil, fmt.Errorf("can't get book: %w", err)
+    }
 
 	return res, nil
 }
@@ -65,7 +70,7 @@ func (b *BookRepo) Get(req *pb.GetByIdReq) (*pb.BookRes, error) {
 			FROM books b 
 			JOIN authors a on b.author_id = a.id 
 			JOIN genres g on b.genre_id = g.id 
-			WHERE b.id = $1 AND deleted_at=0`
+			WHERE b.id = $1 AND b.deleted_at=0`
 	row := b.db.QueryRow(query, req.Id)
 
 	err := row.Scan(
@@ -103,7 +108,7 @@ func (b *BookRepo) GetAll(req *pb.BookGetAllReq) (*pb.BookGetAllRes, error) {
             FROM books b 
             JOIN authors a on b.author_id = a.id 
             JOIN genres g on b.genre_id = g.id 
-            WHERE deleted_at=0`
+            WHERE b.deleted_at=0`
 
 	var args []interface{}
 	var conditions []string
@@ -210,7 +215,7 @@ func (b *BookRepo) Delete(req *pb.GetByIdReq) (*pb.Void, error) {
 	return res, nil
 }
 
-func (b *BookRepo) SearchBook(req *pb.BookSearchReq) (*pb.BookGetAllRes, error) {
+func (b *BookRepo) Search(req *pb.BookSearchReq) (*pb.BookGetAllRes, error) {
 
 	res := &pb.BookGetAllRes{}
 
@@ -226,18 +231,19 @@ func (b *BookRepo) SearchBook(req *pb.BookSearchReq) (*pb.BookGetAllRes, error) 
 			FROM books b 
 			JOIN authors a on b.author_id = a.id 
 			JOIN genres g on b.genre_id = g.id 
-			WHERE deleted_at=0`
+			WHERE b.deleted_at=0`
 
 	var args []interface{}
 	var conditions []string
 
 	if req.Title != "" {
-		args = append(args, req.Title)
-		conditions = append(conditions, fmt.Sprintf("title ILIKE '%$%d%'", len(args)))
+		args = append(args, "%"+req.Title+"%")
+		query += fmt.Sprintf(" AND b.title ILIKE $%d", len(args))
 	}
 	if req.Author != "" {
-		args = append(args, req.Author)
-		conditions = append(conditions, fmt.Sprintf("title ILIKE '%$%d%'", len(args)))
+		args = append(args, "%"+req.Author+"%")
+		query += fmt.Sprintf(" OR a.name ILIKE $%d", len(args))
+		
 	}
 
 	if len(conditions) > 0 {

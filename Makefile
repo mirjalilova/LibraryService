@@ -15,11 +15,8 @@ mig-down:
 mig-create:
 	migrate create -ext sql -dir migrations -seq create_table
 
-run-server:
-	go run server/main.go
-
-run-client:
-	go run client/main.go
+run:
+	go run cmd/main.go
 
 swag_init:
 	swag init -g api/api.go -o api/docs

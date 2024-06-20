@@ -19,11 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	BorrowerService_Create_FullMethodName = "/library_service.BorrowerService/Create"
-	BorrowerService_Get_FullMethodName    = "/library_service.BorrowerService/Get"
-	BorrowerService_GetAll_FullMethodName = "/library_service.BorrowerService/GetAll"
-	BorrowerService_Update_FullMethodName = "/library_service.BorrowerService/Update"
-	BorrowerService_Delete_FullMethodName = "/library_service.BorrowerService/Delete"
+	BorrowerService_Create_FullMethodName              = "/library_service.BorrowerService/Create"
+	BorrowerService_Get_FullMethodName                 = "/library_service.BorrowerService/Get"
+	BorrowerService_GetAll_FullMethodName              = "/library_service.BorrowerService/GetAll"
+	BorrowerService_Update_FullMethodName              = "/library_service.BorrowerService/Update"
+	BorrowerService_Delete_FullMethodName              = "/library_service.BorrowerService/Delete"
+	BorrowerService_GetOverdueBooks_FullMethodName     = "/library_service.BorrowerService/GetOverdueBooks"
+	BorrowerService_GetBorrowedBooks_FullMethodName    = "/library_service.BorrowerService/GetBorrowedBooks"
+	BorrowerService_GetBorrowingHistory_FullMethodName = "/library_service.BorrowerService/GetBorrowingHistory"
 )
 
 // BorrowerServiceClient is the client API for BorrowerService service.
@@ -35,6 +38,9 @@ type BorrowerServiceClient interface {
 	GetAll(ctx context.Context, in *BorrowerGetAllReq, opts ...grpc.CallOption) (*BorrowerGetAllRes, error)
 	Update(ctx context.Context, in *BorrowerUpdateReq, opts ...grpc.CallOption) (*BorrowerRes, error)
 	Delete(ctx context.Context, in *GetByIdReq, opts ...grpc.CallOption) (*Void, error)
+	GetOverdueBooks(ctx context.Context, in *Void, opts ...grpc.CallOption) (*BorrowerGetAllRes, error)
+	GetBorrowedBooks(ctx context.Context, in *BorrowedBooksReq, opts ...grpc.CallOption) (*BorrowedBooksRes, error)
+	GetBorrowingHistory(ctx context.Context, in *BorrowedBooksReq, opts ...grpc.CallOption) (*BorrowedBooksRes, error)
 }
 
 type borrowerServiceClient struct {
@@ -90,6 +96,33 @@ func (c *borrowerServiceClient) Delete(ctx context.Context, in *GetByIdReq, opts
 	return out, nil
 }
 
+func (c *borrowerServiceClient) GetOverdueBooks(ctx context.Context, in *Void, opts ...grpc.CallOption) (*BorrowerGetAllRes, error) {
+	out := new(BorrowerGetAllRes)
+	err := c.cc.Invoke(ctx, BorrowerService_GetOverdueBooks_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *borrowerServiceClient) GetBorrowedBooks(ctx context.Context, in *BorrowedBooksReq, opts ...grpc.CallOption) (*BorrowedBooksRes, error) {
+	out := new(BorrowedBooksRes)
+	err := c.cc.Invoke(ctx, BorrowerService_GetBorrowedBooks_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *borrowerServiceClient) GetBorrowingHistory(ctx context.Context, in *BorrowedBooksReq, opts ...grpc.CallOption) (*BorrowedBooksRes, error) {
+	out := new(BorrowedBooksRes)
+	err := c.cc.Invoke(ctx, BorrowerService_GetBorrowingHistory_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BorrowerServiceServer is the server API for BorrowerService service.
 // All implementations must embed UnimplementedBorrowerServiceServer
 // for forward compatibility
@@ -99,6 +132,9 @@ type BorrowerServiceServer interface {
 	GetAll(context.Context, *BorrowerGetAllReq) (*BorrowerGetAllRes, error)
 	Update(context.Context, *BorrowerUpdateReq) (*BorrowerRes, error)
 	Delete(context.Context, *GetByIdReq) (*Void, error)
+	GetOverdueBooks(context.Context, *Void) (*BorrowerGetAllRes, error)
+	GetBorrowedBooks(context.Context, *BorrowedBooksReq) (*BorrowedBooksRes, error)
+	GetBorrowingHistory(context.Context, *BorrowedBooksReq) (*BorrowedBooksRes, error)
 	mustEmbedUnimplementedBorrowerServiceServer()
 }
 
@@ -120,6 +156,15 @@ func (UnimplementedBorrowerServiceServer) Update(context.Context, *BorrowerUpdat
 }
 func (UnimplementedBorrowerServiceServer) Delete(context.Context, *GetByIdReq) (*Void, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedBorrowerServiceServer) GetOverdueBooks(context.Context, *Void) (*BorrowerGetAllRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOverdueBooks not implemented")
+}
+func (UnimplementedBorrowerServiceServer) GetBorrowedBooks(context.Context, *BorrowedBooksReq) (*BorrowedBooksRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBorrowedBooks not implemented")
+}
+func (UnimplementedBorrowerServiceServer) GetBorrowingHistory(context.Context, *BorrowedBooksReq) (*BorrowedBooksRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBorrowingHistory not implemented")
 }
 func (UnimplementedBorrowerServiceServer) mustEmbedUnimplementedBorrowerServiceServer() {}
 
@@ -224,6 +269,60 @@ func _BorrowerService_Delete_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BorrowerService_GetOverdueBooks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Void)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BorrowerServiceServer).GetOverdueBooks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BorrowerService_GetOverdueBooks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BorrowerServiceServer).GetOverdueBooks(ctx, req.(*Void))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BorrowerService_GetBorrowedBooks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BorrowedBooksReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BorrowerServiceServer).GetBorrowedBooks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BorrowerService_GetBorrowedBooks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BorrowerServiceServer).GetBorrowedBooks(ctx, req.(*BorrowedBooksReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BorrowerService_GetBorrowingHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BorrowedBooksReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BorrowerServiceServer).GetBorrowingHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BorrowerService_GetBorrowingHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BorrowerServiceServer).GetBorrowingHistory(ctx, req.(*BorrowedBooksReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BorrowerService_ServiceDesc is the grpc.ServiceDesc for BorrowerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +349,18 @@ var BorrowerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Delete",
 			Handler:    _BorrowerService_Delete_Handler,
+		},
+		{
+			MethodName: "GetOverdueBooks",
+			Handler:    _BorrowerService_GetOverdueBooks_Handler,
+		},
+		{
+			MethodName: "GetBorrowedBooks",
+			Handler:    _BorrowerService_GetBorrowedBooks_Handler,
+		},
+		{
+			MethodName: "GetBorrowingHistory",
+			Handler:    _BorrowerService_GetBorrowingHistory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

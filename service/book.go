@@ -48,6 +48,28 @@ func (s *BookService) GetAll(ctx context.Context, req *pb.BookGetAllReq) (*pb.Bo
 }
 
 func (s *BookService) Update(ctx context.Context, req *pb.BookUpdateReq) (*pb.BookRes, error) {
+
+	old_book, err := s.storage.BookS.Get(&pb.GetByIdReq{
+		Id: req.Id.Id,
+	})
+	if err != nil {
+		slog.Error("can't get book: %v", err)
+		return nil, fmt.Errorf("can't get book: %w", err)
+	}
+
+	if req.UpdateBook.Title == "string" {
+		req.UpdateBook.Title = old_book.Title
+	}
+	if req.UpdateBook.Summary == "string" {
+		req.UpdateBook.Summary = old_book.Summary
+	}
+	if req.UpdateBook.GenreId == "string" {
+		req.UpdateBook.GenreId = old_book.Genre.Id
+	}
+	if req.UpdateBook.AuthorId == "string" {
+		req.UpdateBook.AuthorId = old_book.Author.Id
+	}
+
 	book, err := s.storage.BookS.Update(req)
 	if err != nil {
 		slog.Error("can't update book: %v", err)
@@ -65,8 +87,8 @@ func (s *BookService) Delete(ctx context.Context, req *pb.GetByIdReq) (*pb.Void,
 	return &pb.Void{}, nil
 }
 
-func (s *BookService) SearchBook(ctx context.Context, req *pb.BookSearchReq) (*pb.BookGetAllRes, error) {
-	books, err := s.storage.BookS.SearchBook(req)
+func (s *BookService) Search(ctx context.Context, req *pb.BookSearchReq) (*pb.BookGetAllRes, error) {
+	books, err := s.storage.BookS.Search(req)
 	if err != nil {
 		slog.Error("can't search book: %v", err)
 		return nil, fmt.Errorf("can't search book: %w", err)

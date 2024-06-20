@@ -16,12 +16,12 @@ import (
 func main() {
 	config := cf.Load()
 	db, err := postgres.Connect(config)
-	if err!= nil {
-        slog.Error("can't connect to db: %v", err)
+	if err != nil {
+		slog.Error("can't connect to db: %v", err)
 		return
-    }
+	}
 
-	listener, err := net.Listen("tcp", config.RESERVATION_PORT)
+	listener, err := net.Listen("tcp", config.LIBRARY_PORT)
 	if err != nil {
 		slog.Error("can't listen: %v", err)
 		return
@@ -33,9 +33,9 @@ func main() {
 	pb.RegisterBookServiceServer(s, service.NewBookService(db))
 	pb.RegisterBorrowerServiceServer(s, service.NewBorrowerService(db))
 
-	slog.Info("server started port", config.RESERVATION_PORT)
+	slog.Info("server started port", config.LIBRARY_PORT)
 	if err := s.Serve(listener); err != nil {
 		slog.Error("can't serve: %v", err)
-        return
+		return
 	}
 }

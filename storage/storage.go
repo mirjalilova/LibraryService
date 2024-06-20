@@ -23,7 +23,7 @@ type BookI interface {
 	GetAll(*pb.BookGetAllReq) (*pb.BookGetAllRes, error)
 	Update(*pb.BookUpdateReq) (*pb.BookRes, error)
 	Delete(*pb.GetByIdReq) (*pb.Void, error)
-	SearchBook(*pb.BookSearchReq) (*pb.BookGetAllRes, error)
+	Search(*pb.BookSearchReq) (*pb.BookGetAllRes, error)
 }
 
 type BorrowerI interface {
@@ -33,6 +33,8 @@ type BorrowerI interface {
 	Update(*pb.BorrowerUpdateReq) (*pb.BorrowerRes, error)
 	Delete(*pb.GetByIdReq) (*pb.Void, error)
 	GetOverdueBooks(*pb.Void) (*pb.BorrowerGetAllRes, error)
+	GetBorrowedBooks(*pb.BorrowedBooksReq) (*pb.BorrowedBooksRes, error)
+	GetBorrowingHistory(*pb.BorrowedBooksReq) (*pb.BorrowedBooksRes, error)
 }
 
 type GenreI interface {
